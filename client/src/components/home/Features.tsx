@@ -1,10 +1,20 @@
+import Title from "@/ui/Title";
+import { Zap } from "lucide-react";
 import { useState } from "react";
 
 const Features = () => {
   const [isHover, setIsHover] = useState(false);
 
   return (
-    <>
+    <section className="flex flex-col items-center">
+      <div className="flex items-center justify-center gap-2 text-sm text-blue-800 bg-blue-400/10 border border-indigo-200 rounded-full px-4 py-1">
+        <Zap width={14} />
+        <span>Simple Process</span>
+      </div>
+      <Title
+        title="Build your resume"
+        description="Create a professional and eye-catching resume effortlessly with our intuitive online builder. Showcase your skills, experience, and achievements in a polished format that will help you stand out to employers and land your dream job. Whether you are starting from scratch or optimizing an existing resume, our platform makes it fast, easy, and effective."
+      />
       <div className="flex flex-col md:flex-row items-center justify-center">
         <img
           className="max-w-2xl w-full xl:-ml-32"
@@ -116,7 +126,7 @@ const Features = () => {
                     font-family: 'Poppins', sans-serif;
                 }
             `}</style>
-    </>
+    </section>
   );
 };
 
