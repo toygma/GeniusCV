@@ -76,9 +76,10 @@ export interface Resume {
   skills: Skill[];
   languages?: Language[];
   projects?: Project[];
-  template?:string;
-  accent_color?:string;
-  public?:boolean;
+  template?: string;
+  accent_color?: string;
+  public?: boolean;
+  image?: string | File;
   certificates?: Certificate[];
   createdAt?: string;
   updatedAt?: string;

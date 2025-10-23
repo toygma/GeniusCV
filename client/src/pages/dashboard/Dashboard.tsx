@@ -13,6 +13,7 @@ import {
   Trash,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 
 const Dashboard = () => {
   const colors = [
@@ -29,6 +30,8 @@ const Dashboard = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [editingResume, setEditingResume] = useState("")
 
+  const navigate = useNavigate()
+
   const loadAllResumes = async () => {
     setAllResumes(dummyResumeData);
   };
@@ -39,10 +42,10 @@ const Dashboard = () => {
 
   const handleCreateResume = async (data: CreateResumeFormData) => {
     try {
-      console.log("Creating resume:", data);
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       setShowCreateModal(false);
+      navigate(`/builder/${data.title}`)
     } catch (error) {
       console.error("Error creating resume:", error);
     }
@@ -222,7 +225,7 @@ const Dashboard = () => {
                       <div className="flex items-center justify-between pt-4 border-t border-slate-700/50">
                         <div className="flex items-center gap-2 text-slate-400 text-xs">
                           <Clock className="w-3 h-3" />
-                          <span>{formatDate(resume.updatedAt)}</span>
+                          <span>{formatDate(resume?.updatedAt as any)}</span>
                         </div>
                         <div className="flex items-center gap-4">
                           <div

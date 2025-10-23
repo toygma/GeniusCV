@@ -1,5 +1,5 @@
 import { dummyResumeData, type Resume } from "@/assets/assts";
-import PersonalInfo from "@/components/resume/PersonalInfo";
+import PersonalInfoPage from "@/components/resume/PersonalInfo";
 import {
   ArrowLeftIcon,
   ChevronLeft,
@@ -49,6 +49,7 @@ const ResumeBuilder = () => {
   const { resumeId } = useParams<{ resumeId: string }>();
   const [activeSectionIndex, setActiveSectionIndex] = useState(0);
   const [resumeData, setResumeData] = useState<Resume>(INITIAL_RESUME_STATE);
+  const [removeBackground, setRemoveBackground] = useState(false);
 
   const activeSection = SECTIONS[activeSectionIndex];
   const isFirstSection = activeSectionIndex === 0;
@@ -79,7 +80,16 @@ const ResumeBuilder = () => {
   const renderSectionContent = () => {
     switch (activeSection.id) {
       case "personal":
-        return <PersonalInfo />;
+        return (
+         <PersonalInfoPage
+            data={resumeData.personal_info}
+            onChange={(data) =>
+              setResumeData((prev:any) => ({ ...prev, personal_info: data }))
+            }
+            removeBackground={removeBackground}
+            setRemoveBackground={setRemoveBackground}
+          />
+        );
       case "summary":
         return <div className="text-gray-600">Özet bölümü içeriği</div>;
       case "experience":
@@ -96,12 +106,12 @@ const ResumeBuilder = () => {
   };
 
   return (
-   <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link 
-            to="/app" 
+          <Link
+            to="/app"
             className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors group"
           >
             <ArrowLeftIcon className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -122,36 +132,48 @@ const ResumeBuilder = () => {
                   const Icon = section.icon;
                   const isActive = index === activeSectionIndex;
                   const isCompleted = index < activeSectionIndex;
-                  
+
                   return (
                     <button
                       key={section.id}
                       onClick={() => setActiveSectionIndex(index)}
                       className={`
                         w-full flex items-center gap-3 p-3 rounded-lg transition-all text-left
-                        ${isActive 
-                          ? "bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300" 
-                          : isCompleted 
-                            ? "bg-green-50 border-2 border-green-200 hover:border-green-300" 
+                        ${
+                          isActive
+                            ? "bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300"
+                            : isCompleted
+                            ? "bg-green-50 border-2 border-green-200 hover:border-green-300"
                             : "bg-gray-50 border-2 border-transparent hover:border-gray-200"
                         }
                       `}
                     >
-                      <div className={`
+                      <div
+                        className={`
                         p-2 rounded-lg
-                        ${isActive 
-                          ? "bg-blue-600 text-white" 
-                          : isCompleted 
-                            ? "bg-green-500 text-white" 
+                        ${
+                          isActive
+                            ? "bg-blue-600 text-white"
+                            : isCompleted
+                            ? "bg-green-500 text-white"
                             : "bg-gray-200 text-gray-600"
                         }
-                      `}>
+                      `}
+                      >
                         <Icon className="w-4 h-4" />
                       </div>
-                      <span className={`
+                      <span
+                        className={`
                         text-sm font-medium
-                        ${isActive ? "text-blue-900" : isCompleted ? "text-green-900" : "text-gray-600"}
-                      `}>
+                        ${
+                          isActive
+                            ? "text-blue-900"
+                            : isCompleted
+                            ? "text-green-900"
+                            : "text-gray-600"
+                        }
+                      `}
+                      >
                         {section.name}
                       </span>
                       {isCompleted && (
@@ -169,7 +191,7 @@ const ResumeBuilder = () => {
             <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
               {/* Progress Bar */}
               <div className="relative h-2 bg-gray-100">
-                <div 
+                <div
                   className="absolute top-0 left-0 h-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500 ease-out"
                   style={{ width: `${progressPercentage}%` }}
                 />
@@ -195,9 +217,7 @@ const ResumeBuilder = () => {
                 </div>
 
                 {/* Form Content */}
-                <div className="mb-8">
-                  {renderSectionContent()}
-                </div>
+                <div className="mb-8">{renderSectionContent()}</div>
 
                 {/* Navigation Buttons */}
                 <div className="flex items-center justify-between pt-6 border-t border-gray-200">
@@ -206,9 +226,10 @@ const ResumeBuilder = () => {
                     disabled={isFirstSection}
                     className={`
                       inline-flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all
-                      ${isFirstSection 
-                        ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
-                        : "bg-white border-2 border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50 hover:shadow-md"
+                      ${
+                        isFirstSection
+                          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                          : "bg-white border-2 border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50 hover:shadow-md"
                       }
                     `}
                   >
@@ -221,9 +242,10 @@ const ResumeBuilder = () => {
                     disabled={isLastSection}
                     className={`
                       inline-flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all
-                      ${isLastSection
-                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                        : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg hover:scale-105"
+                      ${
+                        isLastSection
+                          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                          : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg hover:scale-105"
                       }
                     `}
                   >
@@ -248,8 +270,12 @@ const ResumeBuilder = () => {
                     <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-3 flex items-center justify-center">
                       <User className="w-8 h-8 text-gray-400" />
                     </div>
-                    <p className="text-gray-400 text-sm font-medium">CV önizlemesi</p>
-                    <p className="text-gray-400 text-xs mt-1">Değişiklikler otomatik güncellenir</p>
+                    <p className="text-gray-400 text-sm font-medium">
+                      CV önizlemesi
+                    </p>
+                    <p className="text-gray-400 text-xs mt-1">
+                      Değişiklikler otomatik güncellenir
+                    </p>
                   </div>
                 </div>
               </div>
