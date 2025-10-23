@@ -1,5 +1,6 @@
 import { dummyResumeData, type Resume } from "@/assets/assts";
 import PersonalInfoPage from "@/components/resume/PersonalInfo";
+import ResumePreview from "@/components/resume/ResumePreview";
 import {
   ArrowLeftIcon,
   ChevronLeft,
@@ -63,7 +64,7 @@ const ResumeBuilder = () => {
     const resume = dummyResumeData.find((r) => r._id === resumeId);
     if (resume) {
       setResumeData(resume);
-      document.title = `${resume.title} - CV Oluşturucu`;
+      document.title = `${resume.title} - CV Created`;
     }
   }, [resumeId]);
 
@@ -259,27 +260,7 @@ const ResumeBuilder = () => {
 
           {/* Right - Preview Section */}
           <div className="lg:col-span-4">
-            <div className="sticky top-8">
-              <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                  Canlı Önizleme
-                </h3>
-                <div className="aspect-[8.5/11] bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center hover:border-gray-400 transition-colors">
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-3 flex items-center justify-center">
-                      <User className="w-8 h-8 text-gray-400" />
-                    </div>
-                    <p className="text-gray-400 text-sm font-medium">
-                      CV önizlemesi
-                    </p>
-                    <p className="text-gray-400 text-xs mt-1">
-                      Değişiklikler otomatik güncellenir
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+           <ResumePreview data={resumeData} template={resumeData.template} accentColor={resumeData.accent_color}/>
           </div>
         </div>
       </div>
