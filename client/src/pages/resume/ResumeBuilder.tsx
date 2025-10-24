@@ -17,16 +17,16 @@ import {
   EyeIcon,
   EyeOffIcon,
   DownloadIcon,
-  Loader2, 
+  Loader2,
 } from "lucide-react";
-import { useEffect, useState, useRef } from "react"; 
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router";
 import ExperienceForm from "@/components/resume/form/ExperienceForm";
 import EducationForm from "@/components/resume/form/EducationForm";
 import ProjectsForm from "@/components/resume/form/ProjectsForm";
 import SkillsForm from "@/components/resume/form/SkillsForm";
 import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import html2canvas from "html2canvas-pro";
 
 // Constants
 const SECTIONS = [
@@ -174,8 +174,8 @@ const ResumeBuilder = () => {
   };
 
   const handleShare = () => {
-    const frontendUrl = window.location.href.split("/")[0];
-    const resumeUrl = frontendUrl + resumeId;
+    const frontendUrl = window.location.origin;
+    const resumeUrl = `${frontendUrl}/view/${resumeId}`;
 
     if (navigator.share) {
       navigator.share({ url: resumeUrl, text: "My Resume" });
@@ -196,7 +196,7 @@ const ResumeBuilder = () => {
 
     try {
       const canvas = await html2canvas(input, {
-        scale: 2, 
+        scale: 2,
         useCORS: true,
         logging: false,
       });
@@ -466,11 +466,12 @@ const ResumeBuilder = () => {
             {/* Preview Container with Fixed Size */}
             <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
               {/* This 'ref' is crucial for html2canvas to target the correct element */}
-              <div className="w-full h-full" ref={resumePreviewRef}>
+              <div className="w-full h-full">
                 <ResumePreview
                   data={resumeData}
                   template={resumeData.template}
                   accentColor={resumeData.accent_color}
+                  resumePreviewRef={resumePreviewRef}
                 />
               </div>
             </div>

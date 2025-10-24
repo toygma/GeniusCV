@@ -9,6 +9,7 @@ interface ResumePreviewProps {
   accentColor: string | undefined;
   template: string | undefined;
   classes?: string | undefined;
+  resumePreviewRef?:any;
 }
 
 const ResumePreview = ({
@@ -16,6 +17,7 @@ const ResumePreview = ({
   template,
   accentColor,
   classes = "",
+  resumePreviewRef
 }: ResumePreviewProps) => {
   const renderTemplate = () => {
     switch (template) {
@@ -35,12 +37,12 @@ const ResumePreview = ({
       <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-          Canlı Önizleme
+          Live View
         </h3>
         <div
           className={`aspect-[8.5/11] bg-white rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center hover:border-gray-400 transition-colors w-full ${classes}`}
         >
-          <div className="w-full h-full overflow-auto">
+          <div className="w-full h-full overflow-auto" ref={resumePreviewRef}>
             {renderTemplate()}
           </div>
         </div>
