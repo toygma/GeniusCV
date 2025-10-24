@@ -3,15 +3,19 @@ import Features from "@/components/home/Features";
 import { Hero } from "@/components/home/Hero";
 import Testimonial from "@/components/home/Testimonial";
 import Banner from "@/components/home/Banner";
+import Promotional from "@/components/home/Promotional";
+import Team from "@/components/home/Team";
 
 const Home = () => {
   return (
     <div>
-      <Banner/>
+      <Banner />
       <Hero />
       <Features />
-      <Testimonial />
       <CallToAction />
+      <Testimonial />
+      <Promotional />
+      <Team />
     </div>
   );
 };

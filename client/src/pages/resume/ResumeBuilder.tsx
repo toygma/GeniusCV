@@ -20,7 +20,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import ExperienceForm from "@/components/resume/form/ExperienceForm";
 import EducationForm from "@/components/resume/form/EducationForm";
 import ProjectsForm from "@/components/resume/form/ProjectsForm";
@@ -251,10 +251,10 @@ const ResumeBuilder = () => {
       <div className="container mx-auto px-4 py-8 max-w-[1600px]">
         {/* Header */}
         <div className="mb-8">
-          <button className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors group">
+          <Link to={"/dashboard"} className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors group">
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             <span className="font-medium">Back to Dashboard</span>
-          </button>
+          </Link>
         </div>
 
         {/* 3 Column Layout */}

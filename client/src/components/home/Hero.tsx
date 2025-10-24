@@ -44,7 +44,7 @@ export const Hero = () => {
 
           <div className="flex gap-2">
             <Link
-              to=""
+              to="/dashboard"
               className="hidden md:block px-6 py-2 bg-green-500 hover:bg-green-700 active:scale-95 transition-all rounded-full text-white"
             >
               Get started

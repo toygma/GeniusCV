@@ -22,7 +22,7 @@ export default function Loading() {
         }
         return prev + 1;
       });
-    }, 30);
+    }, 10);
 
     const iconInterval = setInterval(() => {
       setCurrentIcon((prev) => (prev + 1) % icons.length);
