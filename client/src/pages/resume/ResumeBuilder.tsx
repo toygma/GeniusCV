@@ -13,13 +13,20 @@ import {
   FolderKanban,
   Code,
   ArrowLeft,
+  Share2Icon,
+  EyeIcon,
+  EyeOffIcon,
+  DownloadIcon,
+  Loader2, 
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react"; 
 import { useParams } from "react-router";
 import ExperienceForm from "@/components/resume/form/ExperienceForm";
 import EducationForm from "@/components/resume/form/EducationForm";
 import ProjectsForm from "@/components/resume/form/ProjectsForm";
 import SkillsForm from "@/components/resume/form/SkillsForm";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 // Constants
 const SECTIONS = [
@@ -59,6 +66,9 @@ const ResumeBuilder = () => {
   const [activeSectionIndex, setActiveSectionIndex] = useState(0);
   const [resumeData, setResumeData] = useState<Resume>(INITIAL_RESUME_STATE);
   const [removeBackground, setRemoveBackground] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const resumePreviewRef = useRef<HTMLDivElement>(null);
 
   const activeSection = SECTIONS[activeSectionIndex];
   const isFirstSection = activeSectionIndex === 0;
@@ -156,6 +166,83 @@ const ResumeBuilder = () => {
         );
       default:
         return null;
+    }
+  };
+
+  const changeResumeVisibility = async () => {
+    setResumeData({ ...resumeData, public: !resumeData.public });
+  };
+
+  const handleShare = () => {
+    const frontendUrl = window.location.href.split("/")[0];
+    const resumeUrl = frontendUrl + resumeId;
+
+    if (navigator.share) {
+      navigator.share({ url: resumeUrl, text: "My Resume" });
+    } else {
+      alert("Share not supported on this browser");
+    }
+  };
+
+  // Updated download function
+  const downloadResume = async () => {
+    const input = resumePreviewRef.current;
+    if (!input) {
+      console.error("Resume preview element not found");
+      return;
+    }
+
+    setIsDownloading(true);
+
+    try {
+      const canvas = await html2canvas(input, {
+        scale: 2, 
+        useCORS: true,
+        logging: false,
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      // Get image properties
+      const imgProps = pdf.getImageProperties(imgData);
+      const imgWidth = imgProps.width;
+      const imgHeight = imgProps.height;
+
+      // Calculate the ratio to fit the image to the PDF width
+      const ratio = pdfWidth / imgWidth;
+      const scaledImgHeight = imgHeight * ratio;
+
+      // Check if the resume is longer than one page
+      let heightLeft = scaledImgHeight;
+      let position = 0;
+
+      // Add the first page
+      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, scaledImgHeight);
+      heightLeft -= pdfHeight;
+
+      // Add subsequent pages if the content overflows
+      while (heightLeft > 0) {
+        position = heightLeft - scaledImgHeight; // This will be a negative value
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, scaledImgHeight);
+        heightLeft -= pdfHeight;
+      }
+
+      // Sanitize the filename and save the PDF
+      const fileName = `${resumeData.title || "resume"}.pdf`.replace(
+        /\s+/g,
+        "_"
+      );
+      pdf.save(fileName);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Sorry, there was an error downloading your resume.");
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -325,18 +412,68 @@ const ResumeBuilder = () => {
                   setResumeData((prev) => ({ ...prev, template }))
                 }
               />
+              <div className="flex items-center gap-2">
+                {resumeData.public && (
+                  <button
+                    onClick={handleShare}
+                    type="button"
+                    className="p-2 text-blue-600 bg-blue-100 rounded-lg hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150"
+                    aria-label="Share resume"
+                  >
+                    <Share2Icon className="w-5 h-5" />
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={changeResumeVisibility}
+                  className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-150 ${
+                    resumeData.public
+                      ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 focus:ring-emerald-500"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200 focus:ring-gray-500"
+                  }`}
+                >
+                  {resumeData.public ? (
+                    <EyeIcon className="w-5 h-5" />
+                  ) : (
+                    <EyeOffIcon className="w-5 h-5" />
+                  )}
+                  <span>{resumeData.public ? "Public" : "Private"}</span>
+                </button>
+
+                {/* Updated Download Button with loading state */}
+                <button
+                  onClick={downloadResume}
+                  type="button"
+                  disabled={isDownloading}
+                  className="flex items-center justify-center gap-2 w-[130px] px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150 disabled:bg-blue-400 disabled:cursor-not-allowed"
+                >
+                  {isDownloading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <>
+                      <DownloadIcon className="w-5 h-5" />
+                      <span>Download</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* Preview Container with Fixed Size */}
             <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-                <div className="w-full h-full">
-                  <ResumePreview
-                    data={resumeData}
-                    template={resumeData.template}
-                    accentColor={resumeData.accent_color}
-                  />
-                </div>
+              {/* This 'ref' is crucial for html2canvas to target the correct element */}
+              <div className="w-full h-full" ref={resumePreviewRef}>
+                <ResumePreview
+                  data={resumeData}
+                  template={resumeData.template}
+                  accentColor={resumeData.accent_color}
+                />
               </div>
+            </div>
           </div>
         </div>
       </div>
