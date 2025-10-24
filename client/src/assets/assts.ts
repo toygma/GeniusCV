@@ -75,7 +75,7 @@ export interface Resume {
   experience: Experience[];
   skills: Skill[];
   languages?: Language[];
-  projects?: Project[];
+  projects: Project[];
   template?: string;
   accent_color?: string;
   public?: boolean;

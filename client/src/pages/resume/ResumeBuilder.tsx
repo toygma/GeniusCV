@@ -1,8 +1,10 @@
 import { dummyResumeData, type Resume } from "@/assets/assts";
+import ColorPicker from "@/components/resume/ColorPicker";
 import PersonalInfoPage from "@/components/resume/PersonalInfo";
 import ResumePreview from "@/components/resume/ResumePreview";
+import SummaryPage from "@/components/resume/form/SummaryPage";
+import TemplateSelector from "@/components/resume/TemplateSelector";
 import {
-  ArrowLeftIcon,
   ChevronLeft,
   ChevronRight,
   User,
@@ -10,18 +12,23 @@ import {
   GraduationCap,
   FolderKanban,
   Code,
+  ArrowLeft,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router";
+import { useParams } from "react-router";
+import ExperienceForm from "@/components/resume/form/ExperienceForm";
+import EducationForm from "@/components/resume/form/EducationForm";
+import ProjectsForm from "@/components/resume/form/ProjectsForm";
+import SkillsForm from "@/components/resume/form/SkillsForm";
 
 // Constants
 const SECTIONS = [
-  { id: "personal", name: "Kişisel Bilgiler", icon: User },
-  { id: "summary", name: "Özet", icon: User },
-  { id: "experience", name: "Deneyim", icon: Briefcase },
-  { id: "education", name: "Eğitim", icon: GraduationCap },
-  { id: "projects", name: "Projeler", icon: FolderKanban },
-  { id: "skills", name: "Yetenekler", icon: Code },
+  { id: "personal", name: "Personal Info", icon: User },
+  { id: "summary", name: "Summary", icon: User },
+  { id: "experience", name: "Experience", icon: Briefcase },
+  { id: "education", name: "Education", icon: GraduationCap },
+  { id: "projects", name: "Projects", icon: FolderKanban },
+  { id: "skills", name: "Skills", icon: Code },
 ] as const;
 
 const INITIAL_RESUME_STATE: Resume = {
@@ -40,6 +47,7 @@ const INITIAL_RESUME_STATE: Resume = {
   experience: [],
   education: [],
   projects: [],
+  summary: "",
   skills: [],
   template: "classic",
   accent_color: "#3B82F6",
@@ -82,25 +90,70 @@ const ResumeBuilder = () => {
     switch (activeSection.id) {
       case "personal":
         return (
-         <PersonalInfoPage
+          <PersonalInfoPage
             data={resumeData.personal_info}
             onChange={(data) =>
-              setResumeData((prev:any) => ({ ...prev, personal_info: data }))
+              setResumeData((prev: any) => ({ ...prev, personal_info: data }))
             }
             removeBackground={removeBackground}
             setRemoveBackground={setRemoveBackground}
           />
         );
       case "summary":
-        return <div className="text-gray-600">Özet bölümü içeriği</div>;
+        return (
+          <div className="text-gray-600">
+            <SummaryPage
+              data={resumeData.summary}
+              onChange={(data) =>
+                setResumeData((prev) => ({ ...prev, summary: data }))
+              }
+            />
+          </div>
+        );
       case "experience":
-        return <div className="text-gray-600">Deneyim bölümü içeriği</div>;
+        return (
+          <div className="text-gray-600">
+            <ExperienceForm
+              data={resumeData.experience}
+              onChange={(data) =>
+                setResumeData((prev) => ({ ...prev, experience: data }))
+              }
+            />
+          </div>
+        );
       case "education":
-        return <div className="text-gray-600">Eğitim bölümü içeriği</div>;
+        return (
+          <div className="text-gray-600">
+            <EducationForm
+              data={resumeData.education}
+              onChange={(data) =>
+                setResumeData((prev) => ({ ...prev, education: data }))
+              }
+            />
+          </div>
+        );
       case "projects":
-        return <div className="text-gray-600">Projeler bölümü içeriği</div>;
+        return (
+          <div className="text-gray-600">
+            <ProjectsForm
+              data={resumeData.projects}
+              onChange={(data) =>
+                setResumeData((prev) => ({ ...prev, projects: data }))
+              }
+            />
+          </div>
+        );
       case "skills":
-        return <div className="text-gray-600">Yetenekler bölümü içeriği</div>;
+        return (
+          <div className="text-gray-600">
+            <SkillsForm
+              data={resumeData.skills}
+              onChange={(data) =>
+                setResumeData((prev) => ({ ...prev, skills: data }))
+              }
+            />
+          </div>
+        );
       default:
         return null;
     }
@@ -108,25 +161,22 @@ const ResumeBuilder = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 max-w-[1600px]">
         {/* Header */}
         <div className="mb-8">
-          <Link
-            to="/app"
-            className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors group"
-          >
-            <ArrowLeftIcon className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            <span className="font-medium">Gösterge Paneline Dön</span>
-          </Link>
+          <button className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors group">
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            <span className="font-medium">Back to Dashboard</span>
+          </button>
         </div>
 
         {/* 3 Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Sidebar - Section Steps */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-2">
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sticky top-8">
               <h4 className="text-sm font-semibold text-gray-700 mb-4">
-                Bölümler
+                Sections
               </h4>
               <div className="space-y-2">
                 {SECTIONS.map((section, index) => {
@@ -165,7 +215,7 @@ const ResumeBuilder = () => {
                       </div>
                       <span
                         className={`
-                        text-sm font-medium
+                        text-sm font-medium truncate
                         ${
                           isActive
                             ? "text-blue-900"
@@ -178,7 +228,9 @@ const ResumeBuilder = () => {
                         {section.name}
                       </span>
                       {isCompleted && (
-                        <span className="ml-auto text-green-600">✓</span>
+                        <span className="ml-auto text-green-600 flex-shrink-0">
+                          ✓
+                        </span>
                       )}
                     </button>
                   );
@@ -203,15 +255,15 @@ const ResumeBuilder = () => {
                 {/* Section Header */}
                 <div className="flex items-center justify-between mb-8 pb-6 border-b border-gray-200">
                   <div className="flex items-center gap-3">
-                    <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl text-white">
+                    <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl text-white flex-shrink-0">
                       <activeSection.icon className="w-6 h-6" />
                     </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-900">
+                    <div className="min-w-0">
+                      <h2 className="text-2xl font-bold text-gray-900 truncate">
                         {activeSection.name}
                       </h2>
                       <p className="text-sm text-gray-500 mt-1">
-                        Adım {activeSectionIndex + 1} / {SECTIONS.length}
+                        Step {activeSectionIndex + 1} / {SECTIONS.length}
                       </p>
                     </div>
                   </div>
@@ -235,7 +287,7 @@ const ResumeBuilder = () => {
                     `}
                   >
                     <ChevronLeft className="w-4 h-4" />
-                    Önceki
+                    Previous
                   </button>
 
                   <button
@@ -250,7 +302,7 @@ const ResumeBuilder = () => {
                       }
                     `}
                   >
-                    {isLastSection ? "Tamamla" : "Sonraki"}
+                    {isLastSection ? "Complete" : "Next"}
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -259,8 +311,32 @@ const ResumeBuilder = () => {
           </div>
 
           {/* Right - Preview Section */}
-          <div className="lg:col-span-4">
-           <ResumePreview data={resumeData} template={resumeData.template} accentColor={resumeData.accent_color}/>
+          <div className="lg:col-span-5">
+            <div className="flex items-center gap-4 mb-4 flex-wrap">
+              <ColorPicker
+                selectedColor={resumeData.accent_color}
+                onChange={(accent_color: string) =>
+                  setResumeData((prev) => ({ ...prev, accent_color }))
+                }
+              />
+              <TemplateSelector
+                selectedTemplate={resumeData.template}
+                onChange={(template: string) =>
+                  setResumeData((prev) => ({ ...prev, template }))
+                }
+              />
+            </div>
+
+            {/* Preview Container with Fixed Size */}
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                <div className="w-full h-full">
+                  <ResumePreview
+                    data={resumeData}
+                    template={resumeData.template}
+                    accentColor={resumeData.accent_color}
+                  />
+                </div>
+              </div>
           </div>
         </div>
       </div>

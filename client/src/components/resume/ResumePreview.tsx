@@ -25,7 +25,6 @@ const ResumePreview = ({
         return <MinimalTemplate data={data} accentColor={accentColor} />;
       case "minimal-image":
         return <MinimalImageTemplate data={data} accentColor={accentColor} />;
-
       default:
         return <ClassicTemplate data={data} accentColor={accentColor} />;
     }
@@ -38,8 +37,10 @@ const ResumePreview = ({
           <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
           Canlı Önizleme
         </h3>
-        <div className="aspect-[8.5/11] bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center hover:border-gray-400 transition-colors w-full">
-          <div className="h-[1056px] ">
+        <div
+          className={`aspect-[8.5/11] bg-white rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center hover:border-gray-400 transition-colors w-full ${classes}`}
+        >
+          <div className="w-full h-full overflow-auto">
             {renderTemplate()}
           </div>
         </div>

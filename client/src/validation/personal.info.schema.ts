@@ -11,9 +11,7 @@ export const personalInfoSchema = z.object({
     .min(2, { message: "Profession is required." })
     .max(80, { message: "Profession cannot exceed 80 characters." }),
 
-  email: z
-    .string()
-    .email({ message: "Please enter a valid email address." }),
+  email: z.string().email({ message: "Please enter a valid email address." }),
 
   phone: z
     .string()
@@ -31,6 +29,11 @@ export const personalInfoSchema = z.object({
     .min(2, { message: "Title must be at least 2 characters long." })
     .max(100, { message: "Title cannot exceed 100 characters." }),
 
+  summary: z
+    .string()
+    .min(2, { message: "Title must be at least 2 characters long." })
+    .max(100, { message: "Title cannot exceed 100 characters." }).optional(),
+
   linkedin: z
     .url({ message: "Please enter a valid LinkedIn URL." })
     .optional()
@@ -42,10 +45,7 @@ export const personalInfoSchema = z.object({
     .or(z.literal("")),
 
   image: z
-    .union([
-      z.url({ message: "Invalid image URL." }),
-      z.instanceof(File),
-    ])
+    .union([z.url({ message: "Invalid image URL." }), z.instanceof(File)])
     .optional(),
 
   _id: z.string().optional(),
