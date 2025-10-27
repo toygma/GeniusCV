@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import User from "../models/user.model";
 import sendToken from "../utils/sendToken";
+import { User } from "../models/user.model";
 
 const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -30,7 +30,6 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
 
     sendToken({ user, statusCode: 201, res });
   } catch (error) {
-    console.log(error);
     next(error);
   }
 };
@@ -68,7 +67,6 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 
     sendToken({ user, statusCode: 200, res });
   } catch (error) {
-    console.log(error);
     next(error);
   }
 };
@@ -88,7 +86,35 @@ const logout = async (req: Request, res: Response, next: NextFunction) => {
       message: "Logged out successfully",
     });
   } catch (error) {
-    console.log(error);
+    next(error);
+  }
+};
+
+const getUserMe = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req?.user?._id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Not authorized. Please log in again.",
+      });
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
     next(error);
   }
 };
@@ -97,4 +123,5 @@ export default {
   register,
   login,
   logout,
+  getUserMe,
 };
