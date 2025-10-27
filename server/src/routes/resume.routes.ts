@@ -2,15 +2,26 @@ import express from "express";
 
 import { isAuthenticatedUser } from "../middlewares/auth.middleware";
 import resumeController from "../controllers/resume.controller";
+import { uploadSingle } from "../middlewares/multer.middleware";
 
 const router = express.Router();
 
-router.post("/", resumeController.createResume);
+router.post(
+  "/",
+  isAuthenticatedUser,
+  uploadSingle,
+  resumeController.createResume
+);
 
 router.get("/", isAuthenticatedUser, resumeController.getUserResume);
 
-router.put("/:resumeId", resumeController.updateResume);
+router.put(
+  "/:resumeId",
+  isAuthenticatedUser,
+  uploadSingle,
+  resumeController.updateResume
+);
 
-router.delete("/:resumeId", resumeController.deleteResume);
+router.delete("/:resumeId", isAuthenticatedUser, resumeController.deleteResume);
 
 export default router;

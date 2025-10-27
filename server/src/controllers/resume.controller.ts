@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { Resume } from "../models/resume.model";
+import { uploadToImageKit } from "../utils/imageKit";
 
 /**
  * CREATE RESUME
@@ -98,14 +99,49 @@ const updateResume = async (
 ) => {
   try {
     const { resumeId } = req.params;
+    const { removeBackground } = req.body;
+    const userId = req?.user?._id;
+    const image = req.file;
 
     if (!resumeId) {
       return res.status(400).json({ message: "resumeId is required" });
     }
 
+    // Resim varsa ImageKit'e yükle
+    let imageUrl = undefined;
+    if (image) {
+      try {
+        const base64Image = image.buffer.toString("base64");
+        const fileName = `resume-${resumeId}-${Date.now()}-${
+          image.originalname
+        }`;
+
+        const uploadResult = await uploadToImageKit(
+          base64Image,
+          fileName,
+          removeBackground
+        );
+        imageUrl = uploadResult.url;
+
+        console.log("Image uploaded to ImageKit:", imageUrl);
+      } catch (uploadError: any) {
+        console.error("ImageKit upload error:", uploadError);
+        return res.status(500).json({
+          message: "Image upload failed",
+          error: uploadError.message,
+        });
+      }
+    }
+
+    // Update verisini hazırla
+    const updateData = {
+      ...req.body,
+      ...(imageUrl && { image: imageUrl }),
+    };
+
     const updatedResume = await Resume.findByIdAndUpdate(
       resumeId,
-      { $set: req.body },
+      { $set: updateData },
       { new: true, runValidators: true }
     );
 
