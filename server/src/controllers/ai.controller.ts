@@ -259,4 +259,8 @@ const uploadResume = async (
   }
 };
 
-export { enhanceProfessionalSummary, enhanceJobDescription, uploadResume };
+export default {
+  enhanceProfessionalSummary,
+  enhanceJobDescription,
+  uploadResume,
+};

@@ -7,6 +7,7 @@ import path from "path";
 
 import authRoutes from "./routes/auth.routes";
 import resumeRoutes from "./routes/resume.routes";
+import aiRoutes from "./routes/ai.routes";
 
 const app: Express = express();
 const __dirname = path.resolve();
@@ -30,6 +31,7 @@ app.use(
 // 4️⃣ Routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/resume", resumeRoutes);
+app.use("/api/v1/ai", aiRoutes);
 
 // 5️⃣ Error Handler
 app.use(errorHandler);
