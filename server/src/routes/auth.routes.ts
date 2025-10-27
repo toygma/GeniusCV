@@ -8,7 +8,7 @@ router.post("/register", authController.register);
 router.post("/login", authController.login);
 router.post("/logout", authController.logout);
 
-router.get("/",isAuthenticatedUser, authController.getUserMe);
+router.get("/me",isAuthenticatedUser, authController.getUserMe);
 
 
 
