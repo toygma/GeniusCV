@@ -20,7 +20,7 @@ export const resumeApi = createApi({
       invalidatesTags: ["Resume"],
     }),
 
-    getUserResumes: builder.query({
+    getUserResumes: builder.query<any, void>({
       query: () => ({
         url: "/",
         method: "GET",

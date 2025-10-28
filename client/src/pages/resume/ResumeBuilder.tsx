@@ -1,4 +1,4 @@
-import { dummyResumeData, type Resume } from "@/assets/assts";
+import { type Resume } from "@/assets/assts";
 import ColorPicker from "@/components/resume/ColorPicker";
 import PersonalInfoPage from "@/components/resume/PersonalInfo";
 import ResumePreview from "@/components/resume/ResumePreview";
@@ -20,13 +20,18 @@ import {
   Loader2,
 } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import ExperienceForm from "@/components/resume/form/ExperienceForm";
 import EducationForm from "@/components/resume/form/EducationForm";
 import ProjectsForm from "@/components/resume/form/ProjectsForm";
 import SkillsForm from "@/components/resume/form/SkillsForm";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas-pro";
+import {
+  useGetUserResumesQuery,
+  useUpdateResumeMutation,
+} from "@/app/api/resume-api";
+import toast from "react-hot-toast";
 
 // Constants
 const SECTIONS = [
@@ -75,25 +80,29 @@ const ResumeBuilder = () => {
   const isLastSection = activeSectionIndex === SECTIONS.length - 1;
   const progressPercentage = (activeSectionIndex / (SECTIONS.length - 1)) * 100;
 
-  // Load existing resume
+  const { data: getUserResumesData } = useGetUserResumesQuery();
+
+  const [updateResume, { error: UpdateError, isSuccess: UpdateSuccess }] =
+    useUpdateResumeMutation();
+  const navigate = useNavigate()
   useEffect(() => {
-    if (!resumeId) return;
-
-    const resume = dummyResumeData.find((r) => r._id === resumeId);
-    if (resume) {
-      setResumeData(resume);
-      document.title = `${resume.title} - CV Created`;
+    if (UpdateSuccess) {
+      toast.success("Resume updated successfully! 🎉");
+    } else if (UpdateError && "data" in UpdateError) {
+      toast.error(
+        (UpdateError as any)?.data?.message || "Failed to update resume!"
+      );
     }
-  }, [resumeId]);
+  }, [UpdateSuccess, UpdateError]);
 
-  // Navigation handlers
-  const handlePrevious = () => {
-    setActiveSectionIndex((prev) => Math.max(prev - 1, 0));
-  };
-
-  const handleNext = () => {
-    setActiveSectionIndex((prev) => Math.min(prev + 1, SECTIONS.length - 1));
-  };
+  useEffect(() => {
+    if (getUserResumesData && resumeId) {
+      const foundResume = getUserResumesData.resume.find(
+        (r: Resume) => r._id === resumeId
+      );
+      if (foundResume) setResumeData(foundResume);
+    }
+  }, [getUserResumesData, resumeId]);
 
   // Render section content
   const renderSectionContent = () => {
@@ -169,10 +178,6 @@ const ResumeBuilder = () => {
     }
   };
 
-  const changeResumeVisibility = async () => {
-    setResumeData({ ...resumeData, public: !resumeData.public });
-  };
-
   const handleShare = () => {
     const frontendUrl = window.location.origin;
     const resumeUrl = `${frontendUrl}/view/${resumeId}`;
@@ -246,12 +251,96 @@ const ResumeBuilder = () => {
     }
   };
 
+  const saveResume = async (updatedFields?: Partial<Resume>) => {
+    if (!resumeId) return;
+
+    try {
+      // 1️⃣ Merge current data with any updated fields
+      const updatedData = { ...resumeData, ...updatedFields };
+
+      if (updatedData.skills) {
+        updatedData.skills = updatedData.skills.map((skill) => ({
+          name: skill.name,
+          level: skill.level,
+        }));
+      }
+      if (updatedData.projects) {
+        updatedData.projects = updatedData.projects.map((project) => ({
+          name: project.name,
+          description: project.description || "",
+          link: project.link || "",
+          technologies: project.technologies || [],
+          startDate: project.startDate || "",
+          endDate: project.endDate || "",
+        }));
+      }
+
+      if (updatedData.education) {
+        updatedData.education = updatedData.education.map((ed) => ({
+          school: ed.school || "",
+          degree: ed.degree || "",
+          fieldOfStudy: ed.fieldOfStudy || "",
+          location: ed.location || "",
+          startDate: ed.startDate || "",
+          endDate: ed.endDate || "",
+          description: ed.description || "",
+        }));
+      }
+
+      if (updatedData.experience) {
+        updatedData.experience = updatedData.experience.map((exp) => ({
+          company: exp.company || "",
+          position: exp.position || "",
+          location: exp.location || "",
+          description: exp.description || "",
+          startDate: exp.startDate || "",
+          endDate: exp.endDate || "",
+        }));
+      }
+
+      const payload: any = { resumeId, resumeData: updatedData };
+
+      await updateResume(payload).unwrap();
+
+      setResumeData(updatedData);
+    } catch (error) {
+      console.error("Error updating resume:", error);
+      toast.error("Failed to save resume!");
+    }
+  };
+
+  const changeResumeVisibility = async () => {
+    await saveResume({ public: !resumeData.public });
+  };
+
+  // Navigation handlers
+  const handlePrevious = () => {
+    setActiveSectionIndex((prev) => Math.max(prev - 1, 0));
+  };
+
+  const handleNext = async () => {
+    if (isLastSection) {
+      try {
+        await saveResume();
+        navigate(`/view/${resumeId}`)
+      } catch (error) {
+        toast.error("Failed to save resume!");
+        console.error(error);
+      }
+    } else {
+      setActiveSectionIndex((prev) => Math.min(prev + 1, SECTIONS.length - 1));
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <div className="container mx-auto px-4 py-8 max-w-[1600px]">
         {/* Header */}
         <div className="mb-8">
-          <Link to={"/dashboard"} className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors group">
+          <Link
+            to={"/dashboard"}
+            className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors group"
+          >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             <span className="font-medium">Back to Dashboard</span>
           </Link>
@@ -379,7 +468,6 @@ const ResumeBuilder = () => {
 
                   <button
                     onClick={handleNext}
-                    disabled={isLastSection}
                     className={`
                       inline-flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all
                       ${

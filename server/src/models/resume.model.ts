@@ -18,9 +18,10 @@ const ResumeSchema = new Schema<IResume>(
       {
         company: { type: String },
         position: { type: String },
+        location: { type: String },
+        description: { type: String },
         startDate: { type: String },
         endDate: { type: String },
-        description: { type: String },
       },
     ],
     education: [
@@ -39,10 +40,18 @@ const ResumeSchema = new Schema<IResume>(
         description: { type: String },
         link: { type: String },
         technologies: [{ type: String }],
+        startDate: { type: String },
+        endDate: { type: String },
       },
     ],
+
     summary: { type: String, default: "" },
-    skills: { type: [String], default: [] },
+    skills: [
+      {
+        name: { type: String },
+        level: { type: String },
+      },
+    ],
     template: { type: String, default: "classic" },
     accent_color: { type: String, default: "#3B82F6" },
     public: { type: Boolean, default: false },
