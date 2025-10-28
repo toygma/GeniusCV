@@ -5,26 +5,31 @@ import {
   createResumeSchema,
   type CreateResumeFormData,
 } from "@/validation/create.resume.schema";
+import { useEffect } from "react";
 
 interface Props {
   onClose: () => void;
   onSubmit: (data: CreateResumeFormData) => void;
-  resume?: string;
+  initialData?: CreateResumeFormData;
 }
 
-const CreateResumeModal = ({ onClose, onSubmit, resume }: Props) => {
+const CreateResumeModal = ({ onClose, onSubmit, initialData }: Props) => {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    reset,
   } = useForm<CreateResumeFormData>({
     resolver: zodResolver(createResumeSchema),
-    defaultValues: { title: resume || "" },
+    defaultValues: initialData || { title: "" },
   });
 
-  const handleFormSubmit = (data: CreateResumeFormData) => {
-    onSubmit(data);
-  };
+  useEffect(() => {
+    if (initialData) {
+      reset(initialData);
+    }
+  }, [initialData, reset]);
+
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur z-50 flex items-center justify-center p-4">
       <div
@@ -44,16 +49,16 @@ const CreateResumeModal = ({ onClose, onSubmit, resume }: Props) => {
             <FileText className="w-6 h-6 text-white" />
           </div>
           <h2 className="text-3xl font-bold text-slate-900">
-            {resume ? "Edit Resume" : "Create Resume"}
+            {initialData ? "Edit Resume" : "Create Resume"}
           </h2>
           <p className="text-slate-600 mt-2">
-            {resume
+            {initialData
               ? "Update the title of your resume"
               : "Give your resume a title to get started"}
           </p>
         </div>
 
-        <div className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
           <div>
             <label
               htmlFor="title"
@@ -73,27 +78,24 @@ const CreateResumeModal = ({ onClose, onSubmit, resume }: Props) => {
               } outline-none focus:ring-2 transition-all`}
             />
             {errors.title && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.title.message}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
             )}
           </div>
 
           <button
-            type="button"
-            onClick={handleSubmit(onSubmit)}
+            type="submit"
             disabled={isSubmitting}
             className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting
-              ? resume
+              ? initialData
                 ? "Updating..."
                 : "Creating..."
-              : resume
+              : initialData
               ? "Update Resume"
               : "Create Resume"}
           </button>
-        </div>
+        </form>
       </div>
     </div>
   );

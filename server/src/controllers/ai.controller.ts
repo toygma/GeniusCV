@@ -1,6 +1,7 @@
 import { Resume } from "../models/resume.model";
 import openai from "../utils/ai";
 import { Request, Response, NextFunction } from "express";
+import { jsonrepair } from "jsonrepair";
 
 // Enhance professional summary
 const enhanceProfessionalSummary = async (
@@ -165,50 +166,54 @@ const uploadResume = async (
     const systemPrompt =
       "You are an expert AI Agent to extract data from resume.";
 
-    const userPrompt = `extract data from this resume: ${resumeText}
-    
-    Provide data in the following JSON format with no additional text before or after:
-    
-    personal_info: {
-      userId: { type: String },
-      title: { type: String, default: "" },
-      fullname: { type: String, default: "" },
-      email: { type: String, default: "" },
-      phone: { type: String, default: "" },
-      location: { type: String, default: "" },
-      profession: { type: String, default: "" },
-    },
-    experience: [
-      {
-        company: { type: String },
-        position: { type: String },
-        startDate: { type: String },
-        endDate: { type: String },
-        description: { type: String },
-      },
-    ],
-    education: [
-      {
-        school: { type: String },
-        degree: { type: String },
-        fieldOfStudy: { type: String },
-        startDate: { type: String },
-        endDate: { type: String },
-        description: { type: String },
-      },
-    ],
-    projects: [
-      {
-        name: { type: String },
-        description: { type: String },
-        link: { type: String },
-        technologies: [{ type: String }],
-      },
-    ],
-    summary: { type: String, default: "" },
-    skills: { type: [String], default: [] },
+    const userPrompt = `
+Extract structured resume data from this text: ${resumeText}
+
+Return a **valid JSON** object. 
+Do not include any text before or after. 
+Use double quotes for all keys and string values.
+
+Example of correct JSON format:
+{
+  "personal_info": {
+    "title": "",
+    "fullname": "",
+    "email": "",
+    "phone": "",
+    "location": "",
+    "profession": ""
   },
-    `;
+  "experience": [
+    {
+      "company": "",
+      "position": "",
+      "startDate": "",
+      "endDate": "",
+      "description": ""
+    }
+  ],
+  "education": [
+    {
+      "school": "",
+      "degree": "",
+      "fieldOfStudy": "",
+      "startDate": "",
+      "endDate": "",
+      "description": ""
+    }
+  ],
+  "projects": [
+    {
+      "name": "",
+      "description": "",
+      "link": "",
+      "technologies": []
+    }
+  ],
+  "summary": "",
+  "skills": []
+}
+`;
 
     const completion = await openai.chat.completions.create({
       model: process.env.OPENAI_MODEL!,
@@ -235,7 +240,21 @@ const uploadResume = async (
         message: "Failed to generate extractedData content",
       });
     }
-    const parsedData = JSON.parse(extractedData);
+
+    let parsedData;
+    try {
+      parsedData = JSON.parse(extractedData);
+    } catch (err) {
+      try {
+        parsedData = JSON.parse(jsonrepair(extractedData));
+      } catch (innerErr) {
+        console.error("Even jsonrepair failed:", extractedData);
+        return res.status(500).json({
+          success: false,
+          message: "AI response was not valid JSON, even after repair",
+        });
+      }
+    }
     const newResume = await Resume.create({ userId, title, ...parsedData });
     res.status(200).json({ resumeId: newResume._id });
   } catch (error: any) {

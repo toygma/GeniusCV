@@ -3,15 +3,16 @@ import { IResume } from "../types/resume.types";
 
 const ResumeSchema = new Schema<IResume>(
   {
-    title: { type: String, default: "" },
+    title: { type: String, default: "Untitled Resume" },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     personal_info: {
-      userId: { type: String },
       title: { type: String, default: "" },
       fullname: { type: String, default: "" },
       email: { type: String, default: "" },
       phone: { type: String, default: "" },
       location: { type: String, default: "" },
       profession: { type: String, default: "" },
+      image: { type: String, default: "" },
     },
     experience: [
       {

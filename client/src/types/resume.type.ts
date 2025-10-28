@@ -1,7 +1,7 @@
-import { Document } from "mongoose";
 
 export interface IPersonalInfo {
   _id?: string;
+  userId: string;
   title: string;
   fullname: string;
   email: string;
@@ -33,9 +33,8 @@ export interface IProject {
   link?: string;
   technologies?: string[];
 }
-export interface IResume extends Document {
+export interface IResume  {
   title: string;
-  userId:any;
   personal_info: IPersonalInfo;
   experience: IExperience[];
   education: IEducation[];

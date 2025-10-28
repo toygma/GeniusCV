@@ -11,51 +11,14 @@ const createResume = async (
   next: NextFunction
 ) => {
   try {
-    const {
-      title,
-      personal_info,
-      experience,
-      education,
-      projects,
-      summary,
-      skills,
-      template,
-      accent_color,
-      public: isPublic,
-    } = req.body;
+    const { title } = req.body;
+    const userId = req.user._id;
 
-    if (!personal_info || !personal_info.userId) {
-      return res
-        .status(400)
-        .json({ message: "personal_info.userId is required" });
-    }
-
-    const newResume = new Resume({
-      title: title || "",
-      personal_info: {
-        userId: personal_info.userId,
-        title: personal_info.title || "",
-        fullname: personal_info.fullname || "",
-        email: personal_info.email || "",
-        phone: personal_info.phone || "",
-        location: personal_info.location || "",
-        profession: personal_info.profession || "",
-      },
-      experience: experience || [],
-      education: education || [],
-      projects: projects || [],
-      summary: summary || "",
-      skills: skills || [],
-      template: template || "classic",
-      accent_color: accent_color || "#3B82F6",
-      public: typeof isPublic === "boolean" ? isPublic : false,
-    });
-
-    const savedResume = await newResume.save();
+    const newResume = await Resume.create({ userId, title });
 
     return res.status(201).json({
       message: "Resume created successfully",
-      resume: savedResume,
+      resume: newResume,
     });
   } catch (error: any) {
     next(error);
@@ -77,13 +40,15 @@ const getUserResume = async (
       return res.status(400).json({ message: "userId not found" });
     }
 
-    const resumes = await Resume.find({ "personal_info.userId": userId });
+    const resumes = await Resume.find({ userId });
 
     if (!resumes || resumes.length === 0) {
       return res.status(404).json({ message: "This user has no resumes" });
     }
 
-    return res.status(200).json(resumes);
+    return res.status(200).json({
+      resume: resumes,
+    });
   } catch (error) {
     next(error);
   }
@@ -99,7 +64,7 @@ const updateResume = async (
 ) => {
   try {
     const { resumeId } = req.params;
-    const { removeBackground } = req.body;
+    const { resumeData } = req.body;
     const userId = req?.user?._id;
     const image = req.file;
 
@@ -107,25 +72,21 @@ const updateResume = async (
       return res.status(400).json({ message: "resumeId is required" });
     }
 
-    // Resim varsa ImageKit'e yükle
-    let imageUrl = undefined;
+
+
+    let imageUrl: string | undefined = undefined;
     if (image) {
       try {
         const base64Image = image.buffer.toString("base64");
         const fileName = `resume-${resumeId}-${Date.now()}-${
           image.originalname
         }`;
-
         const uploadResult = await uploadToImageKit(
           base64Image,
           fileName,
-          removeBackground
         );
         imageUrl = uploadResult.url;
-
-        console.log("Image uploaded to ImageKit:", imageUrl);
       } catch (uploadError: any) {
-        console.error("ImageKit upload error:", uploadError);
         return res.status(500).json({
           message: "Image upload failed",
           error: uploadError.message,
@@ -133,14 +94,14 @@ const updateResume = async (
       }
     }
 
-    // Update verisini hazırla
     const updateData = {
-      ...req.body,
-      ...(imageUrl && { image: imageUrl }),
+      ...resumeData, 
+      ...(imageUrl && { "personal_info.image": imageUrl }), 
+      updatedAt: new Date(),
     };
 
-    const updatedResume = await Resume.findByIdAndUpdate(
-      resumeId,
+    const updatedResume = await Resume.findOneAndUpdate(
+      { _id: resumeId, userId },
       { $set: updateData },
       { new: true, runValidators: true }
     );
@@ -150,10 +111,12 @@ const updateResume = async (
     }
 
     return res.status(200).json({
+      success: true,
       message: "Resume updated successfully",
       resume: updatedResume,
     });
   } catch (error: any) {
+    console.error("❌ updateResume error:", error);
     next(error);
   }
 };
