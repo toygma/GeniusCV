@@ -1,7 +1,6 @@
 import type { IUser } from "@/types/user.type";
 import { createSlice } from "@reduxjs/toolkit";
 
-
 interface AuthState {
   user: IUser | null;
   isAuthenticated: boolean;
@@ -13,7 +12,6 @@ const initialState: AuthState = {
   isAuthenticated: false,
   loading: false,
 };
-
 
 export const userSlice = createSlice({
   name: "userSlice",
@@ -28,8 +26,13 @@ export const userSlice = createSlice({
     setLoading(state, action) {
       state.loading = action.payload;
     },
+    clearUser: (state) => {
+      state.user = null;
+      state.isAuthenticated = false;
+    },
   },
 });
 
 export default userSlice.reducer;
-export const { setUser, setisAuthenticated, setLoading } = userSlice.actions;
+export const { setUser, setisAuthenticated, setLoading, clearUser } =
+  userSlice.actions;

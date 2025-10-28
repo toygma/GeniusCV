@@ -5,11 +5,13 @@ import App from "./App.tsx";
 
 import { Provider } from "react-redux";
 import { store } from "./app/store.ts";
+import { Toaster } from "react-hot-toast";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
       <App />
     </Provider>
+    <Toaster position="top-center"/>
   </StrictMode>
 );

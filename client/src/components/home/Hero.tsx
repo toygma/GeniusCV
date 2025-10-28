@@ -1,8 +1,17 @@
+import { useLogoutMutation } from "@/app/api/auth-api";
+import { clearUser } from "@/app/features/user-slice";
+import { useAppDispatch, useAppSelector } from "@/app/hook";
 import { useState } from "react";
-import { Link } from "react-router";
+import toast from "react-hot-toast";
+import { Link, useNavigate } from "react-router";
 
 export const Hero = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const { user } = useAppSelector((state) => state.auth);
+
+  const [logout] = useLogoutMutation();
 
   const logos = [
     "https://saasly.prebuiltui.com/assets/companies-logo/instagram.svg",
@@ -11,6 +20,18 @@ export const Hero = () => {
     "https://saasly.prebuiltui.com/assets/companies-logo/huawei.svg",
     "https://saasly.prebuiltui.com/assets/companies-logo/walmart.svg",
   ];
+
+  const handleLogout = async () => {
+    try {
+      await logout().unwrap();
+      dispatch(clearUser());
+      toast.success("Logged out successfully");
+      navigate("/", { replace: true });
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Logout failed");
+    }
+  };
 
   return (
     <>
@@ -43,18 +64,37 @@ export const Hero = () => {
           </div>
 
           <div className="flex gap-2">
-            <Link
-              to="/dashboard"
-              className="hidden md:block px-6 py-2 bg-green-500 hover:bg-green-700 active:scale-95 transition-all rounded-full text-white"
-            >
-              Get started
-            </Link>
-            <Link
-              to="/login"
-              className="hidden md:block px-6 py-2 border active:scale-95 hover:bg-slate-50 transition-all rounded-full text-slate-700 hover:text-slate-900"
-            >
-              Login
-            </Link>
+            {user ? (
+              <>
+                <Link
+                  to="/dashboard"
+                  className="hidden md:block px-6 py-2 bg-green-500 hover:bg-green-700 active:scale-95 transition-all rounded-full text-white"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="hidden md:block px-6 py-2 border active:scale-95 hover:bg-slate-50 transition-all rounded-full text-slate-700 hover:text-slate-900"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/dashboard"
+                  className="hidden md:block px-6 py-2 bg-green-500 hover:bg-green-700 active:scale-95 transition-all rounded-full text-white"
+                >
+                  Get started
+                </Link>
+                <Link
+                  to="/login"
+                  className="hidden md:block px-6 py-2 border active:scale-95 hover:bg-slate-50 transition-all rounded-full text-slate-700 hover:text-slate-900"
+                >
+                  Login
+                </Link>
+              </>
+            )}
           </div>
 
           <button
