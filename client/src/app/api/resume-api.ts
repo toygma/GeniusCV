@@ -4,6 +4,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 const baseQuery = fetchBaseQuery({
   baseUrl: `${import.meta.env.VITE_REACT_APP_API}/api/v1/resume`,
   credentials: "include",
+  
 });
 
 export const resumeApi = createApi({
@@ -29,10 +30,10 @@ export const resumeApi = createApi({
     }),
 
     updateResume: builder.mutation<any, any>({
-      query: ({ resumeId, resumeData }) => ({
+      query: ({ resumeId, formData }) => ({
         url: `/${resumeId}`,
         method: "PUT",
-        body: { resumeData },
+        body: formData, 
       }),
       invalidatesTags: (result, error, { resumeId }) => [
         { type: "Resume", id: resumeId },

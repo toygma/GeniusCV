@@ -105,7 +105,8 @@ const PersonalInfoPage = ({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setValue("image", file);
+      setValue("image", file); 
+      onChange({ ...data, image: file }); 
     }
   };
 
@@ -168,7 +169,7 @@ const PersonalInfoPage = ({
               <input
                 id="profile-image"
                 type="file"
-                accept="image/jpeg, image/png, image/jpg"
+                accept="image/*"
                 className="hidden"
                 onChange={handleImageChange}
               />

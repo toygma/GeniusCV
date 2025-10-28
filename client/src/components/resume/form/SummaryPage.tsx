@@ -2,6 +2,7 @@ import { Subscript } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useState } from "react";
 
 // Define the schema
 const personalInfoSchema = z.object({
@@ -26,6 +27,8 @@ const SummaryPage = ({ data, onChange }: Props) => {
     },
     mode: "onChange",
   });
+
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleChange = (value: string) => {
     onChange(value);

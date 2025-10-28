@@ -84,7 +84,7 @@ const ResumeBuilder = () => {
 
   const [updateResume, { error: UpdateError, isSuccess: UpdateSuccess }] =
     useUpdateResumeMutation();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   useEffect(() => {
     if (UpdateSuccess) {
       toast.success("Resume updated successfully! 🎉");
@@ -297,12 +297,29 @@ const ResumeBuilder = () => {
           endDate: exp.endDate || "",
         }));
       }
+      const formData = new FormData();
+      formData.append(
+        "resumeData",
+        JSON.stringify({
+          ...updatedData,
+          personal_info: {
+            ...updatedData.personal_info,
+            image:
+              typeof updatedData.personal_info.image === "string"
+                ? updatedData.personal_info.image
+                : undefined, 
+          },
+        })
+      );
 
-      const payload: any = { resumeId, resumeData: updatedData };
+      if (updatedData.personal_info?.image instanceof File) {
+        formData.append("image", updatedData.personal_info.image);
+      }
 
-      await updateResume(payload).unwrap();
+      await updateResume({ resumeId, formData }).unwrap();
 
       setResumeData(updatedData);
+      toast.success("Resume saved successfully!");
     } catch (error) {
       console.error("Error updating resume:", error);
       toast.error("Failed to save resume!");
@@ -322,7 +339,7 @@ const ResumeBuilder = () => {
     if (isLastSection) {
       try {
         await saveResume();
-        navigate(`/view/${resumeId}`)
+        navigate(`/view/${resumeId}`);
       } catch (error) {
         toast.error("Failed to save resume!");
         console.error(error);

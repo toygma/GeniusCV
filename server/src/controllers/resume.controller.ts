@@ -64,7 +64,6 @@ const updateResume = async (
 ) => {
   try {
     const { resumeId } = req.params;
-    const { resumeData } = req.body;
     const userId = req?.user?._id;
     const image = req.file;
 
@@ -72,37 +71,45 @@ const updateResume = async (
       return res.status(400).json({ message: "resumeId is required" });
     }
 
+    const resumeData = JSON.parse(req.body.resumeData);
 
-
-    let imageUrl: string | undefined = undefined;
+    let imageUrl: string | undefined;
     if (image) {
-      try {
-        const base64Image = image.buffer.toString("base64");
-        const fileName = `resume-${resumeId}-${Date.now()}-${
-          image.originalname
-        }`;
-        const uploadResult = await uploadToImageKit(
-          base64Image,
-          fileName,
-        );
-        imageUrl = uploadResult.url;
-      } catch (uploadError: any) {
-        return res.status(500).json({
-          message: "Image upload failed",
-          error: uploadError.message,
-        });
-      }
+      const base64Image = image.buffer.toString("base64");
+      const fileName = `resume-${resumeId}-${Date.now()}-${image.originalname}`;
+      const uploadResult = await uploadToImageKit(base64Image, fileName);
+      imageUrl = uploadResult.url;
     }
 
-    const updateData = {
-      ...resumeData, 
-      ...(imageUrl && { "personal_info.image": imageUrl }), 
+    // Prepare update object
+    const update: any = {
+      title: resumeData.title,
+      summary: resumeData.summary,
+      experience: resumeData.experience,
+      education: resumeData.education,
+      projects: resumeData.projects,
+      skills: resumeData.skills,
+      template: resumeData.template,
+      accent_color: resumeData.accent_color,
+      public: resumeData.public,
       updatedAt: new Date(),
+      // Personal info fields except image
+      "personal_info.fullname": resumeData.personal_info.fullname,
+      "personal_info.profession": resumeData.personal_info.profession,
+      "personal_info.email": resumeData.personal_info.email,
+      "personal_info.phone": resumeData.personal_info.phone,
+      "personal_info.location": resumeData.personal_info.location,
+      "personal_info.title": resumeData.personal_info.title,
     };
+
+    // Eğer yeni image varsa
+    if (imageUrl) {
+      update["personal_info.image"] = imageUrl;
+    }
 
     const updatedResume = await Resume.findOneAndUpdate(
       { _id: resumeId, userId },
-      { $set: updateData },
+      { $set: update },
       { new: true, runValidators: true }
     );
 

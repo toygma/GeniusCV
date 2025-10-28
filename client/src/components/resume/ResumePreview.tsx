@@ -9,7 +9,7 @@ interface ResumePreviewProps {
   accentColor: string | undefined;
   template: string | undefined;
   classes?: string | undefined;
-  resumePreviewRef?:any;
+  resumePreviewRef?: any;
 }
 
 const ResumePreview = ({
@@ -17,8 +17,12 @@ const ResumePreview = ({
   template,
   accentColor,
   classes = "",
-  resumePreviewRef
+  resumePreviewRef,
 }: ResumePreviewProps) => {
+  const getImageUrl = (image?: string | File) => {
+    if (!image) return undefined;
+    return typeof image === "string" ? image : URL.createObjectURL(image);
+  };
   const renderTemplate = () => {
     switch (template) {
       case "modern":
@@ -26,7 +30,7 @@ const ResumePreview = ({
       case "minimal":
         return <MinimalTemplate data={data} accentColor={accentColor} />;
       case "minimal-image":
-        return <MinimalImageTemplate data={data} accentColor={accentColor} />;
+        return <MinimalImageTemplate data={data} accentColor={accentColor} getImageUrl={getImageUrl}/>;
       default:
         return <ClassicTemplate data={data} accentColor={accentColor} />;
     }

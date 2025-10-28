@@ -6,7 +6,7 @@ export interface PersonalInfo {
   linkedin?: string;
   website?: string;
   profession: string;
-  image?: string;
+  image?: string | File;
   _id: string;
   userId: string;
   title: string;
