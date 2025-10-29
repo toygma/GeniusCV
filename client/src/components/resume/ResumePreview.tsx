@@ -19,6 +19,9 @@ const ResumePreview = ({
   classes = "",
   resumePreviewRef,
 }: ResumePreviewProps) => {
+  
+
+  
   const getImageUrl = (image?: string | File) => {
     if (!image) return undefined;
     return typeof image === "string" ? image : URL.createObjectURL(image);
@@ -30,7 +33,13 @@ const ResumePreview = ({
       case "minimal":
         return <MinimalTemplate data={data} accentColor={accentColor} />;
       case "minimal-image":
-        return <MinimalImageTemplate data={data} accentColor={accentColor} getImageUrl={getImageUrl}/>;
+        return (
+          <MinimalImageTemplate
+            data={data}
+            accentColor={accentColor}
+            getImageUrl={getImageUrl}
+          />
+        );
       default:
         return <ClassicTemplate data={data} accentColor={accentColor} />;
     }
@@ -44,11 +53,14 @@ const ResumePreview = ({
           Live View
         </h3>
         <div
-          className={`aspect-[8.5/11] bg-white rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center hover:border-gray-400 transition-colors w-full ${classes}`}
+          ref={resumePreviewRef}
+          className={`bg-white rounded-lg border-2 border-dashed border-gray-300 w-full ${classes}`}
+          style={{
+            overflow: "visible",
+            height: "auto",
+          }}
         >
-          <div className="w-full h-full overflow-auto" ref={resumePreviewRef}>
-            {renderTemplate()}
-          </div>
+          <div className="w-full h-full">{renderTemplate()}</div>
         </div>
       </div>
     </div>

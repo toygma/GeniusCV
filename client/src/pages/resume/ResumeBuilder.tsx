@@ -25,13 +25,12 @@ import ExperienceForm from "@/components/resume/form/ExperienceForm";
 import EducationForm from "@/components/resume/form/EducationForm";
 import ProjectsForm from "@/components/resume/form/ProjectsForm";
 import SkillsForm from "@/components/resume/form/SkillsForm";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas-pro";
 import {
   useGetUserResumesQuery,
   useUpdateResumeMutation,
 } from "@/app/api/resume-api";
 import toast from "react-hot-toast";
+import { useReactToPrint } from "react-to-print";
 
 // Constants
 const SECTIONS = [
@@ -189,68 +188,6 @@ const ResumeBuilder = () => {
     }
   };
 
-  // Updated download function
-  const downloadResume = async () => {
-    const input = resumePreviewRef.current;
-    if (!input) {
-      console.error("Resume preview element not found");
-      return;
-    }
-
-    setIsDownloading(true);
-
-    try {
-      const canvas = await html2canvas(input, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-      });
-
-      const imgData = canvas.toDataURL("image/png");
-
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      // Get image properties
-      const imgProps = pdf.getImageProperties(imgData);
-      const imgWidth = imgProps.width;
-      const imgHeight = imgProps.height;
-
-      // Calculate the ratio to fit the image to the PDF width
-      const ratio = pdfWidth / imgWidth;
-      const scaledImgHeight = imgHeight * ratio;
-
-      // Check if the resume is longer than one page
-      let heightLeft = scaledImgHeight;
-      let position = 0;
-
-      // Add the first page
-      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, scaledImgHeight);
-      heightLeft -= pdfHeight;
-
-      // Add subsequent pages if the content overflows
-      while (heightLeft > 0) {
-        position = heightLeft - scaledImgHeight; // This will be a negative value
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, scaledImgHeight);
-        heightLeft -= pdfHeight;
-      }
-
-      // Sanitize the filename and save the PDF
-      const fileName = `${resumeData.title || "resume"}.pdf`.replace(
-        /\s+/g,
-        "_"
-      );
-      pdf.save(fileName);
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      alert("Sorry, there was an error downloading your resume.");
-    } finally {
-      setIsDownloading(false);
-    }
-  };
-
   const saveResume = async (updatedFields?: Partial<Resume>) => {
     if (!resumeId) return;
 
@@ -307,7 +244,7 @@ const ResumeBuilder = () => {
             image:
               typeof updatedData.personal_info.image === "string"
                 ? updatedData.personal_info.image
-                : undefined, 
+                : undefined,
           },
         })
       );
@@ -329,6 +266,24 @@ const ResumeBuilder = () => {
   const changeResumeVisibility = async () => {
     await saveResume({ public: !resumeData.public });
   };
+
+  const handlePrint = useReactToPrint({
+    contentRef: resumePreviewRef,
+    documentTitle: `${resumeData.title || "resume"}`,
+    pageStyle: `
+      @page { size: A4; margin: 0; }
+      @media print {
+        body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      }
+    `,
+    onBeforePrint: async (): Promise<void> => {
+      setIsDownloading(true);
+    },
+    onAfterPrint: (): void => {
+      setIsDownloading(false);
+      toast.success("Resume downloaded successfully!");
+    },
+  });
 
   // Navigation handlers
   const handlePrevious = () => {
@@ -548,7 +503,7 @@ const ResumeBuilder = () => {
 
                 {/* Updated Download Button with loading state */}
                 <button
-                  onClick={downloadResume}
+                  onClick={handlePrint}
                   type="button"
                   disabled={isDownloading}
                   className="flex items-center justify-center gap-2 w-[130px] px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150 disabled:bg-blue-400 disabled:cursor-not-allowed"
