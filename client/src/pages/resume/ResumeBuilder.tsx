@@ -110,8 +110,9 @@ const ResumeBuilder = () => {
         return (
           <PersonalInfoPage
             data={resumeData.personal_info}
-            onChange={(data) =>
-              setResumeData((prev: any) => ({ ...prev, personal_info: data }))
+            onChange={(data) => {
+              return setResumeData((prev: any) => ({ ...prev, personal_info: data }));
+            }
             }
             removeBackground={removeBackground}
             setRemoveBackground={setRemoveBackground}
@@ -256,7 +257,6 @@ const ResumeBuilder = () => {
       await updateResume({ resumeId, formData }).unwrap();
 
       setResumeData(updatedData);
-      toast.success("Resume saved successfully!");
     } catch (error) {
       console.error("Error updating resume:", error);
       toast.error("Failed to save resume!");

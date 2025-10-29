@@ -5,8 +5,8 @@ interface ClassicTemplateProps {
   accentColor?: string;
 }
 
-const ClassicTemplate = ({ data, accentColor = "#6B46C1" }: ClassicTemplateProps) => (
-  <div
+const ClassicTemplate = ({ data, accentColor = "#6B46C1" }: ClassicTemplateProps) => {
+  return <div
     className="w-full h-full p-10 bg-white text-gray-800 font-sans"
     style={{ fontFamily: 'Georgia, "Times New Roman", Times, serif' }}
   >
@@ -150,8 +150,8 @@ const ClassicTemplate = ({ data, accentColor = "#6B46C1" }: ClassicTemplateProps
                 <div key={edu._id} className="text-sm">
                   <h4 className="font-semibold">{edu.degree}</h4>
                   <p className="text-xs">{edu.school}</p>
-                  {edu.field && (
-                    <p className="text-xs text-gray-600">{edu.field}</p>
+                  {edu.fieldOfStudy && (
+                    <p className="text-xs text-gray-600">{edu.fieldOfStudy}</p>
                   )}
                   <p className="text-xs text-gray-500">
                     {edu.startDate} - {edu.endDate}
@@ -195,7 +195,7 @@ const ClassicTemplate = ({ data, accentColor = "#6B46C1" }: ClassicTemplateProps
         </section>
       </div>
     </div>
-  </div>
-);
+  </div>;
+};
 
 export default ClassicTemplate;

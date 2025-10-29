@@ -123,6 +123,7 @@ const PersonalInfoPage = ({
   const handleChange = (field: keyof PersonalInfo, value: string | File) => {
     onChange({ ...data, [field]: value });
   };
+  
   return (
     <form className="space-y-6" onSubmit={handleSubmit(() => {})}>
       {/* Header */}
