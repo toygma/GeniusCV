@@ -52,7 +52,6 @@ VITE_REACT_APP_API=""
 | Frontend   | React, Tailwind CSS             |
 | Backend    | Node.js, Express                |
 | Database   | MongoDB                         |
-| Auth       | Clerk                           |
 | Animations | Framer Motion                   |
 | Forms      | React Hook Form                 |
 | AI         | Gemini API                      |
