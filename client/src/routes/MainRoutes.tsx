@@ -6,11 +6,11 @@ import Loading from "@/components/Loading";
 import Login from "@/pages/auth/Login";
 import Signup from "@/pages/auth/Signup";
 import Dashboard from "@/pages/dashboard/Dashboard";
+import { ProtectedRoute } from "./protected-Route";
 
 const Home = lazy(() => import("@/pages/dashboard/Home"));
 const ResumeBuilder = lazy(() => import("@/pages/resume/ResumeBuilder"));
 const Preview = lazy(() => import("@/pages/preview/Preview"));
-
 
 export const MainRoutes = {
   path: "/",
@@ -33,7 +33,6 @@ export const MainRoutes = {
         </Suspense>
       ),
     },
-
     {
       path: "view/:resumeId",
       element: (
@@ -42,7 +41,6 @@ export const MainRoutes = {
         </Suspense>
       ),
     },
-
     {
       path: "login",
       element: (
@@ -51,7 +49,6 @@ export const MainRoutes = {
         </Suspense>
       ),
     },
-
     {
       path: "signup",
       element: (
@@ -61,14 +58,18 @@ export const MainRoutes = {
       ),
     },
 
-    
     {
-      path: "dashboard",
-      element: (
-        <Suspense fallback={<Loading />}>
-          <Dashboard />
-        </Suspense>
-      ),
+      element: <ProtectedRoute />, 
+      children: [
+        {
+          path: "dashboard",
+          element: (
+            <Suspense fallback={<Loading />}>
+              <Dashboard />
+            </Suspense>
+          ),
+        },
+      ],
     },
   ],
 };
