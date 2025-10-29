@@ -1,4 +1,3 @@
-
 export interface IPersonalInfo {
   _id?: string;
   userId: string;
@@ -11,6 +10,7 @@ export interface IPersonalInfo {
 }
 
 export interface IExperience {
+  _id?: number;
   company: string;
   position: string;
   startDate: string;
@@ -33,7 +33,7 @@ export interface IProject {
   link?: string;
   technologies?: string[];
 }
-export interface IResume  {
+export interface IResume {
   title: string;
   personal_info: IPersonalInfo;
   experience: IExperience[];

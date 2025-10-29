@@ -58,10 +58,8 @@ const SummaryPage = ({ data, onChange }: Props) => {
       const response = await summaryCreate({
         userContent: prompt,
       }).unwrap();
-      console.log("🚀 ~ generateSummary ~ response:", response)
 
       const enhancedContent = response.data.enhanced;
-      console.log("🚀 ~ generateSummary ~ enhancedContent:", enhancedContent)
       onChange(enhancedContent);
       setValue("summary", enhancedContent);
     } catch (error: any) {

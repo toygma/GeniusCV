@@ -1,6 +1,8 @@
+import { useEnhanceJobDescriptionMutation } from "@/app/api/ai-api";
 import type { Experience } from "@/assets/assts";
 import { Briefcase, Plus, Sparkles, Trash2 } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
+import toast from "react-hot-toast";
 
 interface ExperienceFormProps {
   data: Experience[];
@@ -8,9 +10,12 @@ interface ExperienceFormProps {
 }
 
 const ExperienceForm: React.FC<ExperienceFormProps> = ({ data, onChange }) => {
+  const [enhanceJobDescription, { isLoading }] = useEnhanceJobDescriptionMutation();
+  const [generatingIndex, setGeneratingIndex] = useState<number | null>(null);
+
   const addExperience = () => {
     const newExperience: Experience = {
-      _id: crypto.randomUUID(),
+      _id: Date.now(),
       company: "",
       position: "",
       startDate: "",
@@ -36,6 +41,41 @@ const ExperienceForm: React.FC<ExperienceFormProps> = ({ data, onChange }) => {
     const updated = [...data];
     updated[index] = { ...updated[index], [field]: value };
     onChange(updated);
+  };
+
+  const generateEnhancedDescription = async (index: number) => {
+    const experience = data[index];
+    
+    if (!experience.description || experience.description.trim() === "") {
+      toast.error("Please enter a description first");
+      return;
+    }
+
+    try {
+      setGeneratingIndex(index);
+      
+      const prompt = `Enhance this job description for ${experience.position} at ${experience.company}: ${experience.description}`;
+      
+      const response = await enhanceJobDescription({
+        userContent: prompt,
+      }).unwrap();
+
+      const enhancedContent = response?.enhanced || response?.enhancedContent || response?.data?.enhanced;
+      
+      if (enhancedContent) {
+        updateExperience(index, "description", enhancedContent);
+        toast.success("Description enhanced successfully! 🎉");
+      } else {
+        toast.error("Failed to enhance description");
+      }
+    } catch (error: any) {
+      console.error("Error enhancing description:", error);
+      toast.error(
+        error?.data?.message || error.message || "Failed to enhance description"
+      );
+    } finally {
+      setGeneratingIndex(null);
+    }
   };
 
   return (
@@ -65,7 +105,7 @@ const ExperienceForm: React.FC<ExperienceFormProps> = ({ data, onChange }) => {
         <div className="text-center py-8 text-gray-500">
           <Briefcase className="w-12 h-12 mx-auto mb-3 text-gray-300" />
           <p>No work experience added yet.</p>
-          <p className="text-sm">Click “Add Experience” to get started.</p>
+          <p className="text-sm">Click "Add Experience" to get started.</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -157,10 +197,7 @@ const ExperienceForm: React.FC<ExperienceFormProps> = ({ data, onChange }) => {
                   />
                 )}
               </div>
-              <button className="flex items-center cursor-pointer gap-1 px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors disabled:opacity-50">
-                <Sparkles className="w-3 h-3" />
-                Enhance with AI
-              </button>
+
               <textarea
                 placeholder="Description"
                 value={experience.description}
@@ -170,6 +207,18 @@ const ExperienceForm: React.FC<ExperienceFormProps> = ({ data, onChange }) => {
                 className="w-full px-3 py-2 text-sm border rounded-lg"
                 rows={3}
               />
+
+              <button
+                type="button"
+                onClick={() => generateEnhancedDescription(index)}
+                disabled={isLoading && generatingIndex === index}
+                className="flex items-center cursor-pointer gap-1 px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Sparkles className="w-3 h-3" />
+                {isLoading && generatingIndex === index
+                  ? "Enhancing..."
+                  : "Enhance with AI"}
+              </button>
             </div>
           ))}
         </div>
