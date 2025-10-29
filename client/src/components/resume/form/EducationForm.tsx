@@ -13,7 +13,7 @@ const EducationForm: React.FC<EducationFormProps> = ({ data, onChange }) => {
       _id: crypto.randomUUID(),
       school: "",
       degree: "",
-      field: "",
+      fieldOfStudy: "",
       startDate: "",
       endDate: "",
       location: "",
@@ -111,9 +111,9 @@ const EducationForm: React.FC<EducationFormProps> = ({ data, onChange }) => {
                 <input
                   type="text"
                   placeholder="Field of Study"
-                  value={education.field}
+                  value={education.fieldOfStudy}
                   onChange={(e) =>
-                    updateEducation(index, "field", e.target.value)
+                    updateEducation(index, "fieldOfStudy", e.target.value)
                   }
                   className="px-3 py-2 text-sm border rounded-lg w-full"
                 />

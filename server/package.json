@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "nodemon --exec ts-node src/server.ts",
-    "build:backend": "npm install && tsc",
+    "build:server": "npm install && tsc",
     "build:client": "cd .. && cd client  && npm install && npm run build",
     "build": "npm run build:client && npm run build:server "
   },

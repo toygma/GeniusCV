@@ -35,7 +35,7 @@ export const resumeApi = createApi({
         method: "PUT",
         body: formData, 
       }),
-      invalidatesTags: (result, error, { resumeId }) => [
+      invalidatesTags: (_result, _error, { resumeId }) => [
         { type: "Resume", id: resumeId },
         "Resume",
       ],
@@ -56,7 +56,7 @@ export const resumeApi = createApi({
         url: `/${resumeId}`,
         method: "GET",
       }),
-      providesTags: (result, error, id) => [{ type: "Resume", id }],
+      providesTags: (_result, _error, id) => [{ type: "Resume", id }],
     }),
   }),
 });
