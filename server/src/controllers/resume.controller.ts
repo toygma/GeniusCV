@@ -93,14 +93,29 @@ const updateResume = async (
       accent_color: resumeData.accent_color,
       public: resumeData.public,
       updatedAt: new Date(),
-      // Personal info fields except image
-      "personal_info.fullname": resumeData.personal_info.fullname,
-      "personal_info.profession": resumeData.personal_info.profession,
-      "personal_info.email": resumeData.personal_info.email,
-      "personal_info.phone": resumeData.personal_info.phone,
-      "personal_info.location": resumeData.personal_info.location,
-      "personal_info.title": resumeData.personal_info.title,
     };
+
+    // Sadece personal_info varsa ekle
+    if (resumeData.personal_info) {
+      if (resumeData.personal_info.fullname !== undefined) {
+        update["personal_info.fullname"] = resumeData.personal_info.fullname;
+      }
+      if (resumeData.personal_info.profession !== undefined) {
+        update["personal_info.profession"] = resumeData.personal_info.profession;
+      }
+      if (resumeData.personal_info.email !== undefined) {
+        update["personal_info.email"] = resumeData.personal_info.email;
+      }
+      if (resumeData.personal_info.phone !== undefined) {
+        update["personal_info.phone"] = resumeData.personal_info.phone;
+      }
+      if (resumeData.personal_info.location !== undefined) {
+        update["personal_info.location"] = resumeData.personal_info.location;
+      }
+      if (resumeData.personal_info.title !== undefined) {
+        update["personal_info.title"] = resumeData.personal_info.title;
+      }
+    }
 
     // Eğer yeni image varsa
     if (imageUrl) {

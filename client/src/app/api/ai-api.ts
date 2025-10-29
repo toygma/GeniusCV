@@ -18,7 +18,15 @@ export const aiApi = createApi({
       }),
       invalidatesTags: ["AIResume"],
     }),
+    summaryProfessional: builder.mutation<any, any>({
+      query: (body) => ({
+        url: "/enhance-summary",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["AIResume"],
+    }),
   }),
 });
 
-export const { useUploadResumeMutation } = aiApi;
+export const { useUploadResumeMutation,useSummaryProfessionalMutation } = aiApi;

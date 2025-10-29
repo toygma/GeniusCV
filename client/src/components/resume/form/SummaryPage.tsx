@@ -2,7 +2,9 @@ import { Subscript } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { useSummaryProfessionalMutation } from "@/app/api/ai-api";
 
 // Define the schema
 const personalInfoSchema = z.object({
@@ -20,6 +22,7 @@ const SummaryPage = ({ data, onChange }: Props) => {
   const {
     register,
     formState: { errors },
+    setValue,
   } = useForm<PersonalInfoSchema>({
     resolver: zodResolver(personalInfoSchema),
     defaultValues: {
@@ -28,7 +31,53 @@ const SummaryPage = ({ data, onChange }: Props) => {
     mode: "onChange",
   });
 
+  const [
+    summaryCreate,
+    { isLoading, error: GenerateError, isSuccess: generateSuccess },
+  ] = useSummaryProfessionalMutation();
+
   const [isGenerating, setIsGenerating] = useState(false);
+
+  useEffect(() => {
+    if (generateSuccess) {
+      toast.success("Summary generated successfully! 🎉");
+    } else if (GenerateError && "data" in GenerateError) {
+      toast.error((GenerateError as any)?.data?.message || " failed!");
+    }
+  }, [generateSuccess, GenerateError]);
+
+  const generateSummary = async () => {
+    if (!data || data.trim() === "") {
+      toast.error("Please enter a summary first");
+      return;
+    }
+
+    try {
+      setIsGenerating(true);
+      const prompt = `enhance my professional summary ${data}`;
+      const response = await summaryCreate({
+        userContent: prompt,
+      }).unwrap();
+      console.log("🚀 ~ generateSummary ~ response:", response)
+
+      const enhancedContent = response.data.enhanced;
+      console.log("🚀 ~ generateSummary ~ enhancedContent:", enhancedContent)
+      onChange(enhancedContent);
+      setValue("summary", enhancedContent);
+    } catch (error: any) {
+      toast.error(
+        error?.data?.message || error.message || "Failed to generate summary"
+      );
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  useEffect(() => {
+    if (data) {
+      setValue("summary", data);
+    }
+  }, [data, setValue]);
 
   const handleChange = (value: string) => {
     onChange(value);
@@ -62,6 +111,15 @@ const SummaryPage = ({ data, onChange }: Props) => {
       <p className="text-xs text-gray-500">
         Tip: Include your years of experience, key skills, and career goals
       </p>
+
+      <button
+        type="button"
+        onClick={generateSummary}
+        disabled={isGenerating || isLoading}
+        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+      >
+        {isGenerating || isLoading ? "Generating..." : "Generate with AI"}
+      </button>
     </div>
   );
 };

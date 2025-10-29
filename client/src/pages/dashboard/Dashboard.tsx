@@ -165,15 +165,27 @@ const Dashboard = () => {
 
   const handleEditResume = async (id: string, updatedData: any) => {
     try {
+      const formData = new FormData();
+
+      formData.append("resumeData", JSON.stringify(updatedData));
+
+      if (updatedData.image instanceof File) {
+        formData.append("image", updatedData.image);
+      }
+
       const result = await updateResume({
         resumeId: id,
-        resumeData: updatedData,
+        formData: formData,
       }).unwrap();
 
       setShowCreateModal(false);
       setEditingResume("");
 
-      navigate(`/builder/${result?.resume?._id}`);
+      if (result?.resume?._id) {
+        navigate(`/builder/${result.resume._id}`);
+      } else {
+        toast.error("Resume updated but ID not found");
+      }
     } catch (error: any) {
       console.error("Error updating resume:", error);
       toast.error(error?.data?.message || "Failed to update resume");
@@ -189,7 +201,18 @@ const Dashboard = () => {
     setEditingResume("");
     setShowCreateModal(false);
   };
+  const getImageUrl = (
+    image: string | File | undefined
+  ): string | undefined => {
+    if (!image) return undefined;
 
+    if (image instanceof File) {
+      return URL.createObjectURL(image);
+    }
+
+    // If it's already a string URL
+    return image;
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <div className="container mx-auto px-4 py-16">
@@ -313,7 +336,7 @@ const Dashboard = () => {
                         >
                           {resume?.personal_info?.image ? (
                             <img
-                              src={resume?.personal_info?.image}
+                              src={getImageUrl(resume?.personal_info?.image) || ""}
                               alt={resume?.personal_info?.fullname || "Resume"}
                               className="w-full h-full rounded-full object-cover"
                             />
@@ -393,12 +416,12 @@ const Dashboard = () => {
           onClose={closeModal}
           onSubmit={
             editingResume
-              ? (data) => handleEditResume(editingResume, data) 
-              : handleCreateResume 
+              ? (data) => handleEditResume(editingResume, data)
+              : handleCreateResume
           }
           initialData={
             editingResume
-              ? allResumes.find((r:any) => r._id === editingResume) 
+              ? allResumes.find((r: any) => r._id === editingResume)
               : null
           }
         />

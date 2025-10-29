@@ -489,7 +489,7 @@ const ResumeBuilder = () => {
                       inline-flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all
                       ${
                         isLastSection
-                          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg hover:scale-105"
                           : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg hover:scale-105"
                       }
                     `}

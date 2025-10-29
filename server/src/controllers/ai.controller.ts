@@ -11,6 +11,7 @@ const enhanceProfessionalSummary = async (
 ) => {
   try {
     const { userContent } = req.body;
+    console.log("🚀 ~ enhanceProfessionalSummary ~ userContent:", userContent)
 
     if (!userContent) {
       return res.status(400).json({
